@@ -133,7 +133,7 @@ func runSOL() {
 
 		Step(board, next)
 		board = next
-		time.Sleep(time.Millisecond * 300)
+		time.Sleep(time.Millisecond * 250)
 	}
 
 }
