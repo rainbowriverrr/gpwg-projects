@@ -20,6 +20,7 @@ func main() {
 		fmt.Printf("\n 2) Simple Encoding/Decoding")
 		fmt.Printf("\n 3) Game of Life Simulation")
 		fmt.Printf("\n 4) Martian Animal Sancturary")
+		fmt.Printf("\n 5) Turtle Moving")
 		fmt.Printf("\n x) EXIT \n")
 
 		reader := bufio.NewReader(os.Stdin)
@@ -42,6 +43,9 @@ func main() {
 		case '4':
 			fmt.Printf("\n\n Running Martian Animal Sancturary...\n")
 			runSancturary()
+		case '5':
+			fmt.Printf("\n\n Running Turtle Moving...\n")
+			runTurtle()
 		case 'x':
 			os.Exit(0)
 		default:
