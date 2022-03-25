@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+
+	"github.com/rainbowriverrr/gpwg-projects/sudoku"
 )
 
 func main() {
@@ -47,7 +49,7 @@ func main() {
 			fmt.Printf("\n\n Running Turtle Moving...\n")
 			runTurtle()
 		case '6':
-			testSudoku()
+			sudoku.TestSudoku()
 		case 'x':
 			os.Exit(0)
 		default:
