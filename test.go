@@ -46,6 +46,8 @@ func main() {
 		case '5':
 			fmt.Printf("\n\n Running Turtle Moving...\n")
 			runTurtle()
+		case '6':
+			testSudoku()
 		case 'x':
 			os.Exit(0)
 		default:
