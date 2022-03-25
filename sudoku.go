@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type Sudoku struct {
 	board      [][]int8
@@ -63,6 +66,47 @@ func makeTestBoard() Sudoku {
 
 	return toReturn
 
+}
+
+/*
+	input:
+		x: column
+		y: row
+		toSet: number to set at position (x,y)
+*/
+func (s *Sudoku) set(x int8, y int8, toSet int8) error {
+	if x < 0 || x >= 9 || y < 0 || y >= 9 {
+		return errors.New("out of bounds")
+	}
+	if toSet < 1 || toSet > 9 {
+		return errors.New("invalid number")
+	}
+	if s.assigned[y][x] {
+		return errors.New("assigned number")
+	}
+
+	s.board[y][x] = toSet
+
+	return nil
+}
+
+/*
+	resets the number at the cartesian coordinate (x,y), returns error if out of bounds
+	input:
+		x: column
+		y: row
+*/
+func (s *Sudoku) clear(x int8, y int8) error {
+	if x < 0 || x >= 9 || y < 0 || y >= 9 {
+		return errors.New("out of bounds")
+	}
+	if s.assigned[y][x] {
+		return errors.New("assigned number")
+	}
+
+	s.board[y][x] = 0
+
+	return nil
 }
 
 func testSudoku() {
