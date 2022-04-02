@@ -64,30 +64,37 @@ func (s *Sudoku) updateAffectedCandidates(x int8, y int8) {
 		s.candidates[i][x] = remove(s.candidates[i][x], s.board[y][x])
 	}
 
-	var rowOffset int
-	var colOffset int
+	var rowMin int
+	var rowMax int
+	var colMin int
+	var colMax int
 
 	if y < 3 {
-		rowOffset = 0
-	} else if y < 6 {
-		rowOffset = 1
+		rowMin = 0
+		rowMax = 3
+	} else if y >= 3 && y < 6 {
+		rowMin = 3
+		rowMax = 6
 	} else {
-		rowOffset = 2
+		rowMin = 6
+		rowMax = 9
 	}
 
 	if x < 3 {
-		colOffset = 0
-	} else if y < 6 {
-		colOffset = 1
+		colMin = 0
+		colMax = 3
+	} else if x >= 3 && x < 6 {
+		colMin = 3
+		colMax = 6
 	} else {
-		colOffset = 2
+		colMin = 6
+		colMax = 9
 	}
 
-	//TODO: Fix this grid logic
-	for row := rowOffset * 3; row < 3+rowOffset*3; row++ {
-		for col := colOffset * 3; col < 3+colOffset*3; col++ {
-			if !(row == int(y) && col == int(x)) {
-				s.candidates[row][col] = remove(s.candidates[row][col], s.board[y][x])
+	for currRow := rowMin; currRow < rowMax; currRow++ {
+		for currCol := colMin; currCol < colMax; currCol++ {
+			if currCol != int(x) && currRow != int(y) {
+				s.candidates[currRow][currCol] = remove(s.candidates[currRow][currCol], s.board[y][x])
 			}
 		}
 	}
@@ -104,8 +111,6 @@ func (s *Sudoku) setAllCandidates() {
 }
 
 func (s *Sudoku) Solve() {
-
-	s.setAllCandidates()
 
 }
 
@@ -151,61 +156,10 @@ func makeTestBoard() Sudoku {
 		return candidates
 	}()
 
+	toReturn.setAllCandidates()
+
 	return toReturn
 
-}
-
-/*
-	Returns true if the number at (x,y) does not break any rules
-	Returns false if the number at (x,y) does break rules
-	Returns out of bounds error if x or y is out of bounds
-*/
-func (s *Sudoku) testValidity(x int8, y int8) (bool, error) {
-
-	if x < 0 || x > 8 || y < 0 || y > 8 {
-		return false, errors.New("out of bounds")
-	}
-
-	for i := 0; i < 9; i++ {
-		if s.board[y][i] == s.board[y][x] && i != int(x) {
-			return false, nil
-		}
-	}
-	for i := 0; i < 9; i++ {
-		if s.board[i][x] == s.board[y][x] && i != int(y) {
-			return false, nil
-		}
-	}
-
-	var rowOffset int8
-	var colOffset int8
-
-	if y < 3 {
-		rowOffset = 0
-	} else if y < 6 {
-		rowOffset = 1
-	} else {
-		rowOffset = 2
-	}
-
-	if x < 3 {
-		colOffset = 0
-	} else if x < 6 {
-		colOffset = 1
-	} else {
-		colOffset = 2
-	}
-
-	//TODO: Fix this grid logic
-	for row := rowOffset * 3; row < 3+rowOffset*3; row++ {
-		for col := colOffset * 3; col < 3+colOffset*3; col++ {
-			if s.board[row][col] == s.board[y][x] && !(row == y && col == x) {
-				return false, nil
-			}
-		}
-	}
-
-	return true, nil
 }
 
 /*
@@ -225,13 +179,19 @@ func (s *Sudoku) set(x int8, y int8, toSet int8) error {
 		return errors.New("assigned number")
 	}
 
-	valid, _ := s.testValidity(x, y)
+	valid := false
+	for _, candidate := range s.candidates[y][x] {
+		if candidate == toSet {
+			valid = true
+		}
+	}
 
 	if !valid {
 		return errors.New("breaks rules")
 	}
 
 	s.board[y][x] = toSet
+	s.updateAffectedCandidates(x, y)
 
 	return nil
 }
@@ -251,6 +211,7 @@ func (s *Sudoku) clear(x int8, y int8) error {
 	}
 
 	s.board[y][x] = 0
+	s.updateAffectedCandidates(x, y)
 
 	return nil
 }
@@ -259,8 +220,13 @@ func TestSudoku() {
 	testBoard := makeTestBoard()
 	fmt.Println(testBoard)
 
-	err := testBoard.set(3, 0, 6)
+	err := testBoard.set(2, 0, 4)
 
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = testBoard.set(3, 0, 4)
 	if err != nil {
 		fmt.Println(err)
 	}
