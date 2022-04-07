@@ -59,6 +59,18 @@ func (s *Sudoku) updateAffectedCandidates(x int8, y int8) {
 	//Clear
 	if s.board[y][x] == 0 {
 
+		//resets candidates for empty spaces first
+		for i := 0; i < 9; i++ {
+			if s.board[y][i] == 0 {
+				s.candidates[y][i] = []int8{1, 2, 3, 4, 5, 6, 7, 8, 9}
+			}
+			if s.board[x][i] == 0 {
+				s.candidates[i][x] = []int8{1, 2, 3, 4, 5, 6, 7, 8, 9}
+			}
+		}
+
+		s.setAllCandidates()
+
 	} else { //Set
 
 		s.candidates[y][x] = []int8{}
@@ -125,26 +137,25 @@ func (s *Sudoku) setAllCandidates() {
 */
 func (s *Sudoku) findBestEmpty() (int8, int8) {
 
-	//minCandidates := 9
+	minCandidates := 9
 	var minCol int8 = 10
 	var minRow int8 = 10
 
-	for row := range s.board {
-		for col := range s.board[row] {
+	var row int8
+	var col int8
+
+	for row = 0; row < 9; row++ {
+		for col = 0; col < 9; col++ {
 			if s.board[row][col] == 0 {
 				if len(s.candidates[row][col]) == 0 {
 					return -1, -1
 				} else {
-					minCol = int8(col)
-					minRow = int8(row)
+					if len(s.candidates[row][col]) <= minCandidates {
+						minCandidates = len(s.candidates[row][col])
+						minCol = col
+						minRow = row
+					}
 				}
-
-				//TODO: Optimize algorithm by finding the least candidates, minimizes branching factor
-				//if len(s.candidates[row][col]) <= minCandidates {
-				//	minCandidates = len(s.candidates[row][col])
-				//	minCol = int8(col)
-				//	minRow = int8(row)
-				//}
 			}
 		}
 	}
@@ -156,6 +167,8 @@ func (s *Sudoku) findBestEmpty() (int8, int8) {
 func (s *Sudoku) Solve() bool {
 
 	emptyRow, emptyCol := s.findBestEmpty()
+	fmt.Println(emptyRow, emptyCol)
+	fmt.Println(s)
 	if emptyRow == 10 {
 		return true
 	} else if emptyCol == -1 {
@@ -281,22 +294,28 @@ func (s *Sudoku) clear(x int8, y int8) error {
 
 func TestSudoku() {
 	testBoard := makeTestBoard()
-	fmt.Println(testBoard)
+	//
+	//	fmt.Println(testBoard.candidates)
+	//
+	//	err := testBoard.set(2, 0, 4)
+	//
+	//	if err != nil {
+	//		fmt.Println(err)
+	//	}
+	//
+	//	fmt.Println(testBoard)
+	//
+	//	fmt.Println(testBoard.candidates)
+	//
+	//	err = testBoard.clear(2, 0)
+	//
+	//	if err != nil {
+	//		fmt.Println(err)
+	//	}
+	//
+	//	fmt.Println(testBoard)
+	//
+	//	fmt.Println(testBoard.candidates)
 
-	err := testBoard.set(2, 0, 4)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	err = testBoard.set(3, 0, 4)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println(testBoard)
-
-	testBoard.Solve()
-
-	fmt.Println(testBoard.candidates)
+	fmt.Println(testBoard.Solve())
 }
