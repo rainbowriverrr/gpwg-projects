@@ -53,48 +53,55 @@ func remove(l []int8, x int8) []int8 {
 	return l
 }
 
+//TODO:  Make algorithm reset candidates for clear
 func (s *Sudoku) updateAffectedCandidates(x int8, y int8) {
 
-	s.candidates[y][x] = []int8{}
+	//Clear
+	if s.board[y][x] == 0 {
 
-	for i := 0; i < 9; i++ {
-		s.candidates[y][i] = remove(s.candidates[y][i], s.board[y][x])
-	}
-	for i := 0; i < 9; i++ {
-		s.candidates[i][x] = remove(s.candidates[i][x], s.board[y][x])
-	}
+	} else { //Set
 
-	var rowMin int
-	var rowMax int
-	var colMin int
-	var colMax int
+		s.candidates[y][x] = []int8{}
 
-	if y < 3 {
-		rowMin = 0
-		rowMax = 3
-	} else if y >= 3 && y < 6 {
-		rowMin = 3
-		rowMax = 6
-	} else {
-		rowMin = 6
-		rowMax = 9
-	}
+		for i := 0; i < 9; i++ {
+			s.candidates[y][i] = remove(s.candidates[y][i], s.board[y][x])
+		}
+		for i := 0; i < 9; i++ {
+			s.candidates[i][x] = remove(s.candidates[i][x], s.board[y][x])
+		}
 
-	if x < 3 {
-		colMin = 0
-		colMax = 3
-	} else if x >= 3 && x < 6 {
-		colMin = 3
-		colMax = 6
-	} else {
-		colMin = 6
-		colMax = 9
-	}
+		var rowMin int
+		var rowMax int
+		var colMin int
+		var colMax int
 
-	for currRow := rowMin; currRow < rowMax; currRow++ {
-		for currCol := colMin; currCol < colMax; currCol++ {
-			if currCol != int(x) && currRow != int(y) {
-				s.candidates[currRow][currCol] = remove(s.candidates[currRow][currCol], s.board[y][x])
+		if y < 3 {
+			rowMin = 0
+			rowMax = 3
+		} else if y >= 3 && y < 6 {
+			rowMin = 3
+			rowMax = 6
+		} else {
+			rowMin = 6
+			rowMax = 9
+		}
+
+		if x < 3 {
+			colMin = 0
+			colMax = 3
+		} else if x >= 3 && x < 6 {
+			colMin = 3
+			colMax = 6
+		} else {
+			colMin = 6
+			colMax = 9
+		}
+
+		for currRow := rowMin; currRow < rowMax; currRow++ {
+			for currCol := colMin; currCol < colMax; currCol++ {
+				if currCol != int(x) && currRow != int(y) {
+					s.candidates[currRow][currCol] = remove(s.candidates[currRow][currCol], s.board[y][x])
+				}
 			}
 		}
 	}
@@ -110,7 +117,63 @@ func (s *Sudoku) setAllCandidates() {
 	}
 }
 
-func (s *Sudoku) Solve() {
+/*
+	returns(row, column)
+	Finds the last empty cell,  checks if the sudoku is solvable,
+	-1,-1 is returned if unsolvable
+	10,10 is returned if no empties (solved)
+*/
+func (s *Sudoku) findBestEmpty() (int8, int8) {
+
+	//minCandidates := 9
+	var minCol int8 = 10
+	var minRow int8 = 10
+
+	for row := range s.board {
+		for col := range s.board[row] {
+			if s.board[row][col] == 0 {
+				if len(s.candidates[row][col]) == 0 {
+					return -1, -1
+				} else {
+					minCol = int8(col)
+					minRow = int8(row)
+				}
+
+				//TODO: Optimize algorithm by finding the least candidates, minimizes branching factor
+				//if len(s.candidates[row][col]) <= minCandidates {
+				//	minCandidates = len(s.candidates[row][col])
+				//	minCol = int8(col)
+				//	minRow = int8(row)
+				//}
+			}
+		}
+	}
+
+	return minRow, minCol
+
+}
+
+func (s *Sudoku) Solve() bool {
+
+	emptyRow, emptyCol := s.findBestEmpty()
+	if emptyRow == 10 {
+		return true
+	} else if emptyCol == -1 {
+		return false
+	}
+
+	nextBoard := s
+
+	for _, num := range s.candidates[emptyRow][emptyCol] {
+		nextBoard.set(emptyCol, emptyRow, num)
+		if nextBoard.Solve() {
+			return true
+		} else {
+			nextBoard.clear(emptyCol, emptyRow)
+		}
+	}
+
+	return false
 
 }
 
