@@ -3,6 +3,7 @@ package sudoku
 import (
 	"errors"
 	"fmt"
+	//"math/rand"
 )
 
 type Sudoku struct {
@@ -290,6 +291,36 @@ func (s *Sudoku) clear(x int8, y int8) error {
 	s.updateAffectedCandidates(x, y)
 
 	return nil
+}
+
+func GenerateSudoku(difficulty int) Sudoku {
+	toReturn := Sudoku{}
+
+	//Generate valid grid
+	toReturn.board = func() [][]int8 {
+		assigned := make([][]int8, 9)
+		for i := range assigned {
+			assigned[i] = make([]int8, 9)
+		}
+		return assigned
+	}()
+
+	toReturn.candidates = func() [][][]int8 {
+		candidates := make([][][]int8, 9)
+		for i := range candidates {
+			candidates[i] = make([][]int8, 9)
+			for j := range candidates[i] {
+				candidates[i][j] = []int8{1, 2, 3, 4, 5, 6, 7, 8, 9}
+			}
+		}
+		return candidates
+	}()
+
+	//Remove values based on difficulty
+
+	//Set 'Assigned' field
+
+	return toReturn
 }
 
 func TestSudoku() {
