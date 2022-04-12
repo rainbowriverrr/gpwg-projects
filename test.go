@@ -23,6 +23,7 @@ func main() {
 		fmt.Printf("\n 3) Game of Life Simulation")
 		fmt.Printf("\n 4) Martian Animal Sancturary")
 		fmt.Printf("\n 5) Turtle Moving")
+		fmt.Printf("\n 6) Sudoku Solving Testt")
 		fmt.Printf("\n x) EXIT \n")
 
 		reader := bufio.NewReader(os.Stdin)
@@ -49,6 +50,7 @@ func main() {
 			fmt.Printf("\n\n Running Turtle Moving...\n")
 			runTurtle()
 		case '6':
+			fmt.Printf("\n\n Running Sudoku Test...")
 			sudoku.TestSudoku()
 		case 'x':
 			os.Exit(0)

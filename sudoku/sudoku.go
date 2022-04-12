@@ -3,6 +3,7 @@ package sudoku
 import (
 	"errors"
 	"fmt"
+	"time"
 	//"math/rand"
 )
 
@@ -167,6 +168,7 @@ func (s *Sudoku) findBestEmpty() (int8, int8) {
 
 func (s *Sudoku) Solve() bool {
 
+	time.Sleep(time.Millisecond * 500)
 	emptyRow, emptyCol := s.findBestEmpty()
 	fmt.Println(emptyRow, emptyCol)
 	fmt.Println(s)
