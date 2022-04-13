@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -10,6 +11,19 @@ import (
 //}
 
 func runGoTest() {
+	testString := "I really really love GO so so much"
+	pipe1 := make(chan string)
+	pipe2 := make(chan string)
+	resultPipe := make(chan string)
+
+	pipe1 <- testString
+	go splitWords(pipe2, pipe1)
+	close(pipe1)
+	go delIdentical(resultPipe, pipe2)
+
+	for word := range resultPipe {
+		fmt.Print(word + " ")
+	}
 
 }
 
@@ -21,6 +35,7 @@ func splitWords(down chan string, up chan string) {
 		}
 	}
 	//closes down once up is closed
+	down <- ""
 	close(down)
 }
 
