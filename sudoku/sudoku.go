@@ -3,6 +3,7 @@ package sudoku
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"time"
 	//"math/rand"
 )
@@ -193,6 +194,32 @@ func (s *Sudoku) Solve() bool {
 
 }
 
+func (s *Sudoku) SolveRandom() bool {
+	time.Sleep(time.Millisecond * 500)
+	emptyRow, emptyCol := s.findBestEmpty()
+	fmt.Println(emptyRow, emptyCol)
+	fmt.Println(s)
+
+	if emptyRow == 10 {
+		return true
+	} else if emptyCol == -1 {
+		return false
+	}
+
+	for initialSize := len(s.candidates[emptyRow][emptyCol]); initialSize > 0; initialSize++ {
+		number := s.candidates[emptyRow][emptyCol][rand.Intn(len(s.candidates[emptyRow][emptyCol]))]
+		s.set(emptyCol, emptyRow, number)
+		if s.Solve() {
+			return true
+		} else {
+			s.clear(emptyCol, emptyRow)
+		}
+	}
+
+	return false
+
+}
+
 func makeTestBoard() Sudoku {
 
 	toReturn := Sudoku{}
@@ -298,7 +325,7 @@ func (s *Sudoku) clear(x int8, y int8) error {
 func GenerateSudoku(difficulty int) Sudoku {
 	toReturn := Sudoku{}
 
-	//Generate valid grid
+	//Generate empty grid
 	toReturn.board = func() [][]int8 {
 		assigned := make([][]int8, 9)
 		for i := range assigned {
@@ -317,6 +344,8 @@ func GenerateSudoku(difficulty int) Sudoku {
 		}
 		return candidates
 	}()
+
+	//Fill empty grid by solving it
 
 	//Remove values based on difficulty
 
@@ -350,5 +379,5 @@ func TestSudoku() {
 	//
 	//	fmt.Println(testBoard.candidates)
 
-	fmt.Println(testBoard.Solve())
+	fmt.Println(testBoard.SolveRandom())
 }
