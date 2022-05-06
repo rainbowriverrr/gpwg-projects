@@ -345,17 +345,75 @@ func GenerateSudoku(difficulty int) Sudoku {
 		return candidates
 	}()
 
+	toReturn.assigned = func() [][]bool {
+		assigned := make([][]bool, 9)
+		for i := range assigned {
+			assigned[i] = make([]bool, 9)
+			for j := range assigned[i] {
+				assigned[i][j] = false
+			}
+		}
+		return assigned
+	}()
+
 	//Fill empty grid by solving it
+	rand.Seed(time.Now().UnixNano())
+	toReturn.SolveRandom()
 
 	//Remove values based on difficulty
+	toRemove := rand.Intn(5)
+	if difficulty <= 0 {
+		//easy 22 - 26
+		toRemove += 22
+	} else if difficulty == 1 {
+		//medium 36 - 40
+		toRemove += 36
+	} else if difficulty == 2 {
+		//hard 44 - 48
+		toRemove += 44
+	} else if difficulty == 3 {
+		//difficult 50 - 54
+		toRemove += 50
+	} else {
+		//really difficulty 54 - 58
+		toRemove += 54
+	}
+	var col int = rand.Intn(9)
+	var row int = rand.Intn(9)
+	for toRemove > 0 {
 
+		for toReturn.board[row][col] == 0 {
+			col = rand.Intn(9)
+			row = rand.Intn(9)
+		}
+
+		toReturn.clear(int8(col), int8(row))
+
+		toRemove--
+	}
 	//Set 'Assigned' field
+	toReturn.assigned = func() [][]bool {
+		assigned := make([][]bool, 9)
+		for i := range assigned {
+			assigned[i] = make([]bool, 9)
+			for j := range assigned[i] {
+				if toReturn.board[i][j] == 0 {
+					assigned[i][j] = false
+				} else {
+					assigned[i][j] = true
+				}
+			}
+		}
+		return assigned
+	}()
 
 	return toReturn
 }
 
 func TestSudoku() {
-	testBoard := makeTestBoard()
+	testBoard := GenerateSudoku(2)
+
+	fmt.Println(testBoard)
 	//
 	//	fmt.Println(testBoard.candidates)
 	//
@@ -379,5 +437,5 @@ func TestSudoku() {
 	//
 	//	fmt.Println(testBoard.candidates)
 
-	fmt.Println(testBoard.SolveRandom())
+	//fmt.Println(testBoard.SolveRandom())
 }
